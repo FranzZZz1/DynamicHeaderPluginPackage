@@ -298,7 +298,7 @@ export class DynamicHeader {
             headerHiding
         ) => {
             return {
-                position: `${direction}: calc(-${offset}); ${isMenuOffsetHeader} ${getTransitionValue(
+                position: `${direction}: -${offset}; ${isMenuOffsetHeader} ${getTransitionValue(
                     options,
                     transitionSpeed
                 )}`,
@@ -344,11 +344,11 @@ export class DynamicHeader {
                     direction: this.menuDirection,
                     appearanceMethod: this.appearanceMethod,
                 });
-                const menuDirectionOffset = ["left", "right"].includes(
-                    this.menuDirection
-                )
-                    ? "100%"
-                    : `100% + ${this.headerElem.offsetHeight}px`;
+                // const menuDirectionOffset = ["left", "right"].includes(
+                //     this.menuDirection
+                // )
+                //     ? "100%"
+                //     : `100% + ${this.headerElem.offsetHeight}px`;
 
                 const isMenuOffsetHeader =
                     this.menuDirection !== "top" && this.shouldMenuOffsetHeader
@@ -359,11 +359,7 @@ export class DynamicHeader {
 
                 const menuCloseStyles = getStyles(
                     direction,
-                    `${
-                        this.appearanceMethod == "position"
-                            ? menuDirectionOffset
-                            : "100%"
-                    }`,
+                    "100%",
                     isMenuOffsetHeader,
                     transitionSpeed,
                     options,
