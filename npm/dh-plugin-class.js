@@ -197,7 +197,8 @@ export class DynamicHeader {
                         this.headerElem,
                         this.shouldSmoothScroll,
                         this.shouldScrollOffsetHeader,
-                        this.modules.includes(headerHiding) &&
+                        this.modules &&
+                            this.modules.includes(headerHiding) &&
                             this.headerHiding,
                         this.headerHeight,
                         this.scrollMargin,
@@ -276,11 +277,13 @@ export class DynamicHeader {
         const docEl = document.documentElement;
 
         const elemYOffset =
+            this.modules &&
             this.modules.includes(headerHiding) &&
             this.headerHiding &&
             !this.shouldMenuOffsetHeader
                 ? Math.abs(this.elemY) - 5
-                : (!this.modules.includes(headerHiding) ||
+                : (!this.modules ||
+                      !this.modules.includes(headerHiding) ||
                       !this.headerHiding) &&
                   !this.shouldMenuOffsetHeader
                 ? "0"
@@ -299,14 +302,10 @@ export class DynamicHeader {
                     options,
                     transitionSpeed
                 )}`,
-                transform: `transform: ${direction}${offset})${
-                    // this.shouldMenuOffsetHeader &&
-                    // this.menuDirection !== "top"
-                    // ?
-                    ` translateY(${headerHiding}px)`
-                    // : `${this.headerElem.offsetHeight - 5}`
-                    //   ""
-                }; ${getTransitionValue(options, transitionSpeed)}`,
+                transform: `transform: ${direction}${offset})${` translateY(${headerHiding}px)`}; ${getTransitionValue(
+                    options,
+                    transitionSpeed
+                )}`,
             };
         };
 
@@ -328,7 +327,6 @@ export class DynamicHeader {
             this.openSpeed,
             options,
             elemYOffset
-            // this.headerElem.offsetHeight - 5
         );
 
         this.stateOpen =
@@ -370,11 +368,6 @@ export class DynamicHeader {
                     transitionSpeed,
                     options,
                     elemYOffset
-                    // this.modules.includes(headerHiding) &&
-                    //     this.headerHiding &&
-                    //     !this.shouldMenuOffsetHeader
-                    //     ? Math.abs(this.elemY) - 5
-                    //     : this.headerElem.offsetHeight - 5
                 );
 
                 this.menu &&
@@ -385,11 +378,10 @@ export class DynamicHeader {
             if (this.menu) {
                 if (
                     (!isScrollEventAttached &&
-                        // this.modules.includes(headerHiding) &&
-                        // this.headerHiding &&
                         this.appearanceMethod === "transform" &&
                         !this.shouldMenuOffsetHeader) ||
                     (!isScrollEventAttached &&
+                        this.modules &&
                         this.modules.includes(headerHiding) &&
                         this.headerHiding &&
                         this.appearanceMethod === "position" &&
@@ -704,18 +696,24 @@ export class DynamicHeader {
         this.menuBodyElem.style.removeProperty("top");
         this.menuBodyElem.style.removeProperty("transition");
 
-        this.modules.includes(headerHiding) && headerHiding.destroy();
+        this.modules &&
+            this.modules.includes(headerHiding) &&
+            headerHiding.destroy();
 
-        this.modules.includes(scrollWatch) &&
+        this.modules &&
+            this.modules.includes(scrollWatch) &&
             scrollWatch.destroy(this.menuItem);
 
-        this.modules.includes(headerScroll) && headerScroll.destroy();
+        this.modules &&
+            this.modules.includes(headerScroll) &&
+            headerScroll.destroy();
         this.headerElem.classList.remove(this.headerScroll.headerScrollClass);
 
-        this.modules.includes(headerScrollOffset) &&
+        this.modules &&
+            this.modules.includes(headerScrollOffset) &&
             headerScrollOffset.destroy();
 
-        this.modules.includes(pageLock) && pageLock.destroy();
+        this.modules && this.modules.includes(pageLock) && pageLock.destroy();
 
         document.documentElement.classList.remove(this.pageLock.pageLockClass);
         document.body.style.removeProperty("padding-right");
