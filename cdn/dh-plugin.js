@@ -279,7 +279,8 @@ class DynamicHeader {
             this.headerHiding &&
             !this.shouldMenuOffsetHeader
                 ? Math.abs(this.elemY) - 5
-                : (!this.modules.includes(headerHiding) ||
+                : (!this.modules ||
+                      !this.modules.includes(headerHiding) ||
                       !this.headerHiding) &&
                   !this.shouldMenuOffsetHeader
                 ? "0"

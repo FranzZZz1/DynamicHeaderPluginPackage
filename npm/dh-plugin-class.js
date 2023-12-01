@@ -276,11 +276,13 @@ export class DynamicHeader {
         const docEl = document.documentElement;
 
         const elemYOffset =
+            this.modules &&
             this.modules.includes(headerHiding) &&
             this.headerHiding &&
             !this.shouldMenuOffsetHeader
                 ? Math.abs(this.elemY) - 5
-                : (!this.modules.includes(headerHiding) ||
+                : (!this.modules ||
+                      !this.modules.includes(headerHiding) ||
                       !this.headerHiding) &&
                   !this.shouldMenuOffsetHeader
                 ? "0"
@@ -299,14 +301,10 @@ export class DynamicHeader {
                     options,
                     transitionSpeed
                 )}`,
-                transform: `transform: ${direction}${offset})${
-                    // this.shouldMenuOffsetHeader &&
-                    // this.menuDirection !== "top"
-                    // ?
-                    ` translateY(${headerHiding}px)`
-                    // : `${this.headerElem.offsetHeight - 5}`
-                    //   ""
-                }; ${getTransitionValue(options, transitionSpeed)}`,
+                transform: `transform: ${direction}${offset})${` translateY(${headerHiding}px)`}; ${getTransitionValue(
+                    options,
+                    transitionSpeed
+                )}`,
             };
         };
 
@@ -328,7 +326,6 @@ export class DynamicHeader {
             this.openSpeed,
             options,
             elemYOffset
-            // this.headerElem.offsetHeight - 5
         );
 
         this.stateOpen =
@@ -370,11 +367,6 @@ export class DynamicHeader {
                     transitionSpeed,
                     options,
                     elemYOffset
-                    // this.modules.includes(headerHiding) &&
-                    //     this.headerHiding &&
-                    //     !this.shouldMenuOffsetHeader
-                    //     ? Math.abs(this.elemY) - 5
-                    //     : this.headerElem.offsetHeight - 5
                 );
 
                 this.menu &&
@@ -385,8 +377,6 @@ export class DynamicHeader {
             if (this.menu) {
                 if (
                     (!isScrollEventAttached &&
-                        // this.modules.includes(headerHiding) &&
-                        // this.headerHiding &&
                         this.appearanceMethod === "transform" &&
                         !this.shouldMenuOffsetHeader) ||
                     (!isScrollEventAttached &&
