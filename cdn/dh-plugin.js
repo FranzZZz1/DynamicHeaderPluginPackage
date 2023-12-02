@@ -1,5 +1,5 @@
 /**
- * Класс, представляющий динамический заголовок.
+ * Класс, представляющий плагин.
  * @class
  */
 class DynamicHeader {
@@ -342,11 +342,6 @@ class DynamicHeader {
                     direction: this.menuDirection,
                     appearanceMethod: this.appearanceMethod,
                 });
-                // const menuDirectionOffset = ["left", "right"].includes(
-                //     this.menuDirection
-                // )
-                //     ? "100%"
-                //     : `100% + ${this.headerElem.offsetHeight}px`;
 
                 const isMenuOffsetHeader =
                     this.menuDirection !== "top" && this.shouldMenuOffsetHeader
@@ -729,16 +724,22 @@ function attachEvent(element, event, handler, options) {
 const menuDirectionCheck = (options) => {
     const { appearanceMethod, direction } = options;
 
-    if (appearanceMethod === "position") return direction;
-
-    if (appearanceMethod === "transform") {
-        if (direction === "left") {
-            return "translateX(-";
-        } else if (direction === "right") {
-            return "translateX(";
-        } else if (direction === "top") {
-            return "translateY(-";
-        }
+    switch (appearanceMethod) {
+        case "position":
+            return direction;
+        case "transform":
+            switch (direction) {
+                case "left":
+                    return "translateX(-";
+                case "right":
+                    return "translateX(";
+                case "top":
+                    return "translateY(-";
+                default:
+                    return "";
+            }
+        default:
+            return "";
     }
 };
 
@@ -766,15 +767,18 @@ const headerPositionCheck = (
     const headerPosition = headerStyles.getPropertyValue("position");
     const main = document.querySelector(mainElement);
     if (main) {
+        const marginTop =
+            headerElem.offsetHeight +
+            (mainElementScrollMargin ? mainElementScrollMargin : 0);
+
+        const marginBottom = mainElementScrollMargin
+            ? mainElementScrollMargin
+            : 0;
         if (["absolute", "fixed"].includes(headerPosition)) {
-            main.style.marginTop = `${
-                headerElem.offsetHeight +
-                (mainElementScrollMargin ? mainElementScrollMargin : 0)
-            }px`;
+            main.style.marginTop = `${marginTop}px`;
             headerElem.style.marginBottom = "";
         } else {
-            headerElem.style.marginBottom =
-                (mainElementScrollMargin ? mainElementScrollMargin : 0) + "px";
+            headerElem.style.marginBottom = `${marginBottom}px`;
             main.style.marginTop = "";
         }
     }

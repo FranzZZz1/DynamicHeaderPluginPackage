@@ -1,5 +1,5 @@
 /**
- * Класс, представляющий динамический заголовок.
+ * Класс, представляющий плагин.
  * @class
  */
 export class DynamicHeader {
@@ -96,8 +96,6 @@ export class DynamicHeader {
 
         this.elemY = null;
 
-        this.headerHidingDestroyed = false;
-
         this.#initialize();
     }
 
@@ -167,6 +165,7 @@ export class DynamicHeader {
                 } else if (module == scrollWatch) {
                     this.scrollWatch &&
                         scrollWatch.init(
+                            this.header,
                             this.menuItem,
                             this.menuLink,
                             this.headerElem,
@@ -694,7 +693,7 @@ export class DynamicHeader {
 
         this.modules &&
             this.modules.includes(headerHiding) &&
-            headerHiding.destroy();
+            headerHiding.destroy(this.headerElem);
 
         this.modules &&
             this.modules.includes(scrollWatch) &&
@@ -731,16 +730,22 @@ function attachEvent(element, event, handler, options) {
 const menuDirectionCheck = (options) => {
     const { appearanceMethod, direction } = options;
 
-    if (appearanceMethod === "position") return direction;
-
-    if (appearanceMethod === "transform") {
-        if (direction === "left") {
-            return "translateX(-";
-        } else if (direction === "right") {
-            return "translateX(";
-        } else if (direction === "top") {
-            return "translateY(-";
-        }
+    switch (appearanceMethod) {
+        case "position":
+            return direction;
+        case "transform":
+            switch (direction) {
+                case "left":
+                    return "translateX(-";
+                case "right":
+                    return "translateX(";
+                case "top":
+                    return "translateY(-";
+                default:
+                    return "";
+            }
+        default:
+            return "";
     }
 };
 
@@ -763,15 +768,18 @@ const headerPositionCheck = (
     const headerPosition = headerStyles.getPropertyValue("position");
     const main = document.querySelector(mainElement);
     if (main) {
+        const marginTop =
+            headerElem.offsetHeight +
+            (mainElementScrollMargin ? mainElementScrollMargin : 0);
+
+        const marginBottom = mainElementScrollMargin
+            ? mainElementScrollMargin
+            : 0;
         if (["absolute", "fixed"].includes(headerPosition)) {
-            main.style.marginTop = `${
-                headerElem.offsetHeight +
-                (mainElementScrollMargin ? mainElementScrollMargin : 0)
-            }px`;
+            main.style.marginTop = `${marginTop}px`;
             headerElem.style.marginBottom = "";
         } else {
-            headerElem.style.marginBottom =
-                (mainElementScrollMargin ? mainElementScrollMargin : 0) + "px";
+            headerElem.style.marginBottom = `${marginBottom}px`;
             main.style.marginTop = "";
         }
     }
@@ -879,7 +887,10 @@ export const headerHiding = {
         headerHiding.headerHideHandler();
         attachEvent(window, "scroll", headerHiding.headerHideHandler);
     },
-    destroy: () => {
+    destroy: (headerElem) => {
+        headerElem.style.removeProperty("position");
+        headerElem.style.removeProperty("top");
+        headerElem.style.removeProperty("transform");
         window.removeEventListener("scroll", headerHiding.headerHideHandler);
     },
 };
@@ -888,6 +899,7 @@ export const scrollWatch = {
     onScroll: null,
     handleMenuItemClick: null,
     init: (
+        header,
         menuItem,
         menuLink,
         headerElem,
@@ -896,12 +908,52 @@ export const scrollWatch = {
         headerHeightScrollValue
     ) => {
         const menuItems = document.querySelectorAll(menuItem);
+        if (!menuItems.length) return;
+
         const headerElemHeight =
             headerHeightScrollValue !== false
                 ? headerHeightScrollValue + 100
                 : headerElem.offsetHeight + 100;
 
-        scrollWatch.onScroll = (event) => {
+        scrollWatch.handleMenuItemClick = (event) => {
+            event.preventDefault();
+
+            const link = menuLink
+                ? event.currentTarget.querySelector(menuLink)
+                : event.currentTarget.querySelector("a");
+            const target = link.getAttribute("href");
+            if (!target) {
+                console.error(
+                    `${header}:\nОтсутствует тег "a" в menuItem, либо атрибут href.`
+                );
+                return null;
+            }
+            const targetElement = document.querySelector(target);
+            if (!targetElement) {
+                console.error(
+                    `${header}:\nОтсутствуют section с id, соответствующим href в menuLink.`
+                );
+                return null;
+            }
+
+            menuItems.forEach((item) => {
+                item.classList.remove(menuItemActive);
+            });
+            event.currentTarget.classList.add(menuItemActive);
+
+            if (targetElement) {
+                if (timeout) {
+                    clearTimeout(timeout);
+                }
+
+                window.removeEventListener("scroll", scrollWatch.onScroll);
+                timeout = setTimeout(() => {
+                    window.addEventListener("scroll", scrollWatch.onScroll);
+                }, scrollEventTimeout);
+            }
+        };
+
+        scrollWatch.onScroll = () => {
             const scrollPos = window.scrollY;
             menuItems.forEach((item) => {
                 const link = item.querySelector(menuLink);
@@ -922,31 +974,9 @@ export const scrollWatch = {
                 }
             });
         };
+
         let timeout;
 
-        scrollWatch.handleMenuItemClick = function (event) {
-            event.preventDefault();
-
-            const link = this.querySelector(menuLink);
-            const target = link.getAttribute("href");
-            const targetElement = document.querySelector(target);
-
-            menuItems.forEach((item) => {
-                item.classList.remove(menuItemActive);
-            });
-            this.classList.add(menuItemActive);
-
-            if (targetElement) {
-                if (timeout) {
-                    clearTimeout(timeout);
-                }
-
-                window.removeEventListener("scroll", scrollWatch.onScroll);
-                timeout = setTimeout(() => {
-                    window.addEventListener("scroll", scrollWatch.onScroll);
-                }, scrollEventTimeout);
-            }
-        };
         scrollWatch.onScroll();
         window.addEventListener("scroll", scrollWatch.onScroll);
 
@@ -1022,10 +1052,9 @@ export const headerScroll = {
         const scrollEndPosition =
             headerScrollEndPosition !== false
                 ? headerScrollEndPosition
-                : (headerScrollEndPosition =
-                      headerScrollPosition > 0
-                          ? headerScrollPosition - 1
-                          : headerScrollPosition);
+                : headerScrollPosition > 0
+                ? headerScrollPosition - 1
+                : headerScrollPosition;
 
         headerScroll.handleScrollWatch = () => {
             const pos = window.pageYOffset;
@@ -1036,12 +1065,13 @@ export const headerScroll = {
             } else if (pos <= scrollEndPosition) {
                 headerElem.classList.remove(headerScrollClass);
             }
-            mainElement &&
+            if (mainElement) {
                 headerPositionCheck(
                     headerElem,
                     mainElement,
                     mainElementScrollMargin
                 );
+            }
         };
 
         if (headerScrollPosition >= scrollEndPosition) {
@@ -1055,7 +1085,7 @@ export const headerScroll = {
             );
 
             console.error(
-                `headerScrollEndPosition must be less than or equal to headerScrollPosition`
+                `headerScrollEndPosition должен быть меньше или равен headerScrollPosition`
             );
         }
     },
@@ -1093,7 +1123,7 @@ export const headerScrollOffset = {
                         top: 0,
                         behavior: shouldSmoothScroll ? "smooth" : "auto",
                     };
-                    window.scrollTo(scrollOptions);
+                    window.scrollBy(scrollOptions);
                 } else {
                     const targetElement = document.querySelector(targetId);
 
