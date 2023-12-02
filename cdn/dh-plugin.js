@@ -2,7 +2,7 @@
  * Класс, представляющий плагин.
  * @class
  */
-export class DynamicHeader {
+class DynamicHeader {
     /**
      * Создает экземпляр DynamicHeader.
      * @constructor
