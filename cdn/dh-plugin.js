@@ -2,7 +2,7 @@
  * Класс, представляющий плагин.
  * @class
  */
-class DynamicHeader {
+export class DynamicHeader {
     /**
      * Создает экземпляр DynamicHeader.
      * @constructor
@@ -165,6 +165,7 @@ class DynamicHeader {
                 } else if (module == scrollWatch) {
                     this.scrollWatch &&
                         scrollWatch.init(
+                            this.header,
                             this.menuItem,
                             this.menuLink,
                             this.headerElem,
@@ -342,6 +343,11 @@ class DynamicHeader {
                     direction: this.menuDirection,
                     appearanceMethod: this.appearanceMethod,
                 });
+                // const menuDirectionOffset = ["left", "right"].includes(
+                //     this.menuDirection
+                // )
+                //     ? "100%"
+                //     : `100% + ${this.headerElem.offsetHeight}px`;
 
                 const isMenuOffsetHeader =
                     this.menuDirection !== "top" && this.shouldMenuOffsetHeader
@@ -687,7 +693,7 @@ class DynamicHeader {
 
         this.modules &&
             this.modules.includes(headerHiding) &&
-            headerHiding.destroy();
+            headerHiding.destroy(this.headerElem);
 
         this.modules &&
             this.modules.includes(scrollWatch) &&
