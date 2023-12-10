@@ -6,44 +6,135 @@ export class DynamicHeader {
     /**
      * Создает экземпляр DynamicHeader.
      * @constructor
-	 // Object
-	 * @param {Object} [options={}] - Настройки для конфигурации динамического заголовка.
-	 * @param {Object} [options.on={}] - Объект обработчиков событий.
-	 * @param {Object|boolean} [options.pageLock={}] - Параметр для блокировки страницы при открытии меню.
-	 * @param {Object|boolean} [options.scrollLock={}] - Параметр для блокировки прокрутки.
-	 * @param {Object|boolean} [options.headerScroll={}] - Параметр для прокрутки заголовка.
-	 // Boolean
-	 * @param {boolean} [options.menu=true] - Параметр для включения/отключения меню.
-	 * @param {Array} [options.modules=false] - Параметр для модулей.
-	 * @param {boolean} [options.scrollWatch=false] - параметр, включив который, к menuItem будет присваиваться класс из параметра "menuItemActive", в случае появления в поле видимости секции, id которой совпадает с атрибутом href в menuLink.
-	 * @param {boolean} [options.mainElement=false] - Параметр для основного элемента.
-	 * @param {boolean} [options.headerHiding=false] - Параметр для скрытия шапки сайта при прокрутке страницы.
-	 * @param {boolean} [options.shouldSmoothScroll=true] - Параметр для включения плавной прокрутки.
-	 * @param {boolean} [options.shouldMenuOffsetHeader=false] - Параметр для определения, должно ли меню открываться с учетом шапки сайта.
-	 * @param {boolean} [options.shouldScrollOffsetHeader=false] - Параметр для определения, должна ли прокрутка смещать заголовок.
-	 // Number
-	 * @param {number} [options.openSpeed=550] - Скорость открытия.
-	 * @param {number} [options.scrollMargin=0] - Значение отступа между секцией и шапкой сайта при навигации по якорным ссылкам.
-	 * @param {number} [options.closeSpeed=350] - Скорость закрытия.
-	 * @param {number} [options.mediaQuery=9999999] - Значение медиа-запроса.
-	 * @param {number} [options.scrollEventTimeout=900] - Таймаут события прокрутки.
-	 * @param {number} [options.mainElementScrollMargin=0] - Значение отступа прокрутки для основного элемента.
-	 * @param {number} [options.headerHeightScrollValue=false] - Значение прокрутки высоты заголовка.
-	 // String
-	 * @param {string} header - Заголовок.
-	 * @param {string} [options.menuDirection="top"] - Направление меню.
-	 * @param {string} [options.timingFunction="ease"] - Функция времени.
-	 * @param {string} [options.menuItemActive="active"] - Класс активного элемента меню.
-	 * @param {string} [options.menuIcon=".header__burger"] - селектор элемента, при нажатии на который происходит открытие и закрытие меню.
-	 * @param {string} [options.menuOpenClass="menu--open"] - Класс открытого меню.
-	 * @param {string} [options.appearanceMethod="position"] - Метод появления.
-	 * @param {string} [options.hideClass="visually-hidden"] - Класс скрытого элемента.
-	 * @param {string} [options.menuItem=".header__menu-item"] - Селектор элемента меню.
-	 * @param {string} [options.menuLink=".header__menu-link"] - Селектор ссылки меню.
-	 * @param {string} [options.menuBody=".header__menu-wrapper"] - Селектор тела меню.
-	 * @param {string} [options.menuIconActive="header__burger--active"] - Класс активной иконки меню.
-	 * @param {string} [options.animationClass=false] - Класс анимации.
-    */
+     * @param {Object} options - Настройки для конфигурации DynamicHeader.
+     * @param {Object} options.on - Объект обработчиков событий (В разработке).
+     * @param {Object} options.pageLock
+     * - Параметр для полной блокировки прокрутки страницы при открытии меню.
+     * @param {boolean} [options.pageLock.pageLockPadding=false]
+     * - Параметр, включив который, при открытии меню, к элементу "body" будет присваиваться *padding-right*, величина которого напрямую зависит от ширины полосы прокрутки.
+     * - По-умолчанию - **false**.
+     * @param {string} [options.pageLock.pageLockClass="lock"]
+     * - Класс, который будет присвоен элементу "html" при открытии меню.
+     * - По-умолчанию - **"lock"**.
+     * @param {Object} options.scrollLock
+     * - Объект, параметры которого позволяют настроить блокировку прокрутки в пределах каких-либо блоков при открытии меню.
+     * @param {string} options.scrollLock.scrollLockClass
+     * - Класс, который будет присвоен шапке сайта при открытии меню и удален при закрытии.
+     * - По-умолчанию - **"scroll-locked"**.
+     * @param {boolean} options.scrollLock.scrollLockDesktop
+     * - Параметр, включив который, блокировка прокрутки начнет работать на десктоп устройствах.
+     * - По-умолчанию - **true**.
+     * @param {["header"]} options.scrollLock.scrollLockArray
+     * - Массив, который принимает в себя селекторы элементов(класс, тег), на которых должна быть заблокирована прокрутка.
+     * - По-умолчанию - **["Селектор шапки сайта, указанный при создании экземпляра класса DynamicHeader"]**.
+     * @param {Object} options.headerScroll
+     * - Объект, параметры которого управляют присвоением/удалением класса к шапке сайта при прокрутке страницы.
+     * @param {string} options.headerScroll.headerScrollClass
+     * - Класс, который будет присвоен/удален к шапке сайта по достижении указанного в "*headerScrollPosition*" и "*headerScrollEndPosition*" количества пикселей.
+     * - По-умолчанию - **"header--dark"**.
+     * @param {number} options.headerScroll.headerScrollPosition
+     * - Количество прокрученных пикселей, по достижении которого шапке сайта будет присвоен класс.
+     * - По-умолчанию - **Высота шапки сайта**.
+     * @param {number} options.headerScroll.headerScrollEndPosition
+     * - Количество прокрученных пикселей, по достижении которого у шапки сайта будет удален класс.
+     * - **Должен быть меньше или равен "headerScrollPosition"**.
+     * - По-умолчанию - **Высота шапки сайта - 1px**.
+     * @param {boolean} options.headerScroll.headerScrollMobile
+     * - Параметр, включив который, модуль "headerScroll" начнет работать на мобильных устройствах (*при переходе в состояние, в котором появляется меню*).
+     * - По-умолчанию - **false**.
+     * @param {[heаderHiding, scrollWаtch, heаderScroll, heаderScrollOffset, pаgeLock]} options.modules
+     *  ### Массив модулей:
+     *  #### 1. headerHiding - модуль для скрытия шапки сайта при прокрутке страницы.
+     *  #### 2. scrollWatch - модуль для подсветки элементов меню, при появлении на экране соответствующей тому или иному элементу меню секции.
+     *  #### 3. headerScroll - модуль для присвения класса шапке сайта, при прокрутке определенного количества пискелей.
+     *  #### 4. headerScrollOffet - модуль позволяет включить плавную прокрутку и учет высоты шапки сайта при навигации по якорным ссылкам.
+     *	#### 5. pageLock - модуль включает блокировку прокрутки страницы при открытии меню путем присвоения класса тегу "*html*" и *padding-right* для тега "*body*", величина которого напрямую зависит от ширины полосы прокрутки.
+     * @param {boolean} options.menu
+     * - Параметр для включения/отключения меню.
+     * @param {boolean} options.scrollWatch
+     * - параметр, включив который, к "*menuItem*" будет присваиваться класс из параметра "*menuItemActive*", в случае появления в поле видимости секции, id которой совпадает с атрибутом href в "*menuLink*"".
+     * @param {string} options.mainElement
+     * - Класс элемента "*main*".
+     * - По-умолчанию - **false**.
+     * @param {number} options.mainElementScrollMargin
+     * - Значение отступа прокрутки для основного элемента.
+     * - **Начинает работать после указания класса в "*mainElement*"**.
+     * - По-умолчанию - **0**.
+     * @param {boolean} options.headerHiding
+     * - Параметр для скрытия шапки сайта при прокрутке страницы.
+     * - По-умолчанию - **false**.
+     * @param {boolean} options.shouldSmoothScroll
+     * - Параметр для включения плавной прокрутки.
+     * - **Начинает работать после подключения модуля "*headerScrollOffset*"**.
+     * - По-умолчанию - **true**.
+     * @param {boolean} options.shouldMenuOffsetHeader
+     * - Параметр для определения, должно ли меню открываться с учетом шапки сайта.
+     * - По-умолчанию - **false**.
+     * @param {boolean} options.shouldScrollOffsetHeader
+     * - Параметр для определения, должна ли прокрутка смещать заголовок.
+     * - **Начинает работать после подключения модуля "*headerScrollOffset*"**.
+     * - По-умолчанию - **false**.
+     * @param {number} options.openSpeed
+     * - Скорость открытия меню.
+     * - По-умолчанию - **550**.
+     * @param {number} options.closeSpeed
+     * - Скорость закрытия меню.
+     * - По-умолчанию - **350**.
+     * @param {number} options.scrollMargin
+     * - Значение отступа между секцией и шапкой сайта при навигации по якорным ссылкам.
+     * - По-умолчанию - **0**.
+     * @param {number} options.mediaQuery
+     * - Ширина экрана, на которой появится меню.
+     * - По-умолчанию - **9999999**.
+     * @param {number} options.scrollEventTimeout
+     * - Количество миллисекунд, по истечении которого включится событие скролла после нажатия на якорную ссылку.
+     * - **Начинает работать после подключения модуля "*scrollWatch*"**.
+     * - По-умолчанию - **900**.
+     * @param {number} options.headerHeightScrollValue
+     * - Число, которое будет принято за высоту шапки сайта при прокрутке по якорным сслыкам. Необходимо в случае изменения высоты шапки сайта после присвоение ей класса из модуля "*headerScroll*".
+     * - По-умолчанию - **false**.
+     * @param {string} options.menuDirection
+     * - Направление меню.
+     * - Варианты значений: "top", "left", "right".
+     * - По-умолчанию - **"top"**.
+     * @param {string} options.timingFunction
+     * - Анимация перехода(transition) при открытии меню.
+     * - Варианты значений: "ease", "ease-in", "ease-out", "ease-in-out", "linear", "cubic-bezier".
+     * - По-умолчанию - **"ease"**.
+     * @param {string} options.menuIcon
+     * - селектор элемента, при нажатии на который происходит открытие и закрытие меню.
+     * - По-умолчанию - **".header__burger"**.
+     * @param {string} options.menuIconActive
+     * - Класс активной иконки меню.
+     * - По-умолчанию - **"header__burger--active"**.
+     * @param {string} options.menuOpenClass
+     * - Класс открытого меню.
+     * - По-умолчанию - **"menu--open"**.
+     * @param {string} options.appearanceMethod
+     * - Метод открытия/скрытия меню (и шапки сайта при подключенном модуле "*headerHiding*").
+     * - Варианты значений: "transform", "position".
+     * - По-умолчанию - **"position"**.
+     * @param {string} options.hideClass
+     * - Класс скрытого элемента.
+     * - По-умолчанию - **"visually-hidden"**.
+     * @param {string} options.menuItem
+     * - Селектор элемента меню.
+     * - По-умолчанию - **".header__menu-item"**.
+     * @param {string} options.menuItemActive
+     * - Класс активного элемента меню.
+     * - По-умолчанию - **"active"**.
+     * @param {string} options.menuLink
+     * - Селектор ссылки меню.
+     * - По-умолчанию - **".header__menu-link"**.
+     * @param {string} options.menuBody
+     * - Селектор тела меню.
+     * - По-умолчанию - **".header__menu-wrapper"**.
+     * @param {string} options.animationClass
+     * - Класс анимации.
+     * - По-умолчанию - **"false"**.
+     * @param {string} header
+     * - Селектор шапки сайта.
+     */
     constructor(header, options = {}) {
         this.header = header;
         this.options = Object.assign(
@@ -71,8 +162,8 @@ export class DynamicHeader {
                 menuIconActive: "header__burger--active",
                 on: {},
                 //! new
-                closeSpeed: 350,
                 openSpeed: 550,
+                closeSpeed: 350,
                 animationClass: false,
                 headerHeightScrollValue: false,
                 appearanceMethod: "position",
@@ -93,8 +184,6 @@ export class DynamicHeader {
         if (!this.headerElem) {
             throw new Error(`Не найден элемент с селектором "${header}"`);
         }
-
-        this.elemY = null;
 
         this.#initialize();
     }
@@ -148,7 +237,6 @@ export class DynamicHeader {
                             menuBodyElem: this.menuBodyElem,
                             shouldMenuOffsetHeader: this.shouldMenuOffsetHeader,
                             updateStateOpen: this.#updateStateOpen.bind(this),
-                            updateElemY: this.#updateElemY.bind(this),
                             menuOpenClass: this.menuOpenClass,
                             appearanceMethod: this.appearanceMethod,
                             openSpeed: this.openSpeed,
@@ -196,9 +284,7 @@ export class DynamicHeader {
                         this.headerElem,
                         this.shouldSmoothScroll,
                         this.shouldScrollOffsetHeader,
-                        this.modules &&
-                            this.modules.includes(headerHiding) &&
-                            this.headerHiding,
+                        this.#isModuleInitiated(headerHiding, "headerHiding"),
                         this.headerHeight,
                         this.scrollMargin,
                         this.mainElementScrollMargin
@@ -268,22 +354,36 @@ export class DynamicHeader {
         this.stateOpen = newStateOpen;
     }
 
-    #updateElemY(elemY) {
-        this.elemY = elemY;
+    #isModuleInitiated(module, moduleName) {
+        return (
+            this.modules &&
+            this.modules.includes(module) &&
+            this[moduleName] !== false
+        );
     }
 
     #menuInit() {
         const docEl = document.documentElement;
 
-        const elemYOffset =
-            this.modules &&
-            this.modules.includes(headerHiding) &&
-            this.headerHiding &&
+        const translateYRegex = /translateY\(([^)]+)\)/;
+
+        const translateYValue = () => {
+            const transformStyle = this.headerElem
+                ? this.headerElem.style.transform
+                : null;
+
+            const match = transformStyle
+                ? transformStyle.match(translateYRegex)
+                : null;
+
+            return match ? parseFloat(match[1]) : 0;
+        };
+
+        let elemYOffset =
+            this.#isModuleInitiated(headerHiding, "headerHiding") &&
             !this.shouldMenuOffsetHeader
-                ? Math.abs(this.elemY) - 5
-                : (!this.modules ||
-                      !this.modules.includes(headerHiding) ||
-                      !this.headerHiding) &&
+                ? Math.abs(translateYValue())
+                : !this.#isModuleInitiated(headerHiding, "headerHiding") &&
                   !this.shouldMenuOffsetHeader
                 ? "0"
                 : this.headerElem.offsetHeight - 5;
@@ -297,14 +397,14 @@ export class DynamicHeader {
             headerHiding
         ) => {
             return {
-                position: `${direction}: -${offset}; ${isMenuOffsetHeader} ${getTransitionValue(
-                    options,
-                    transitionSpeed
-                )}`,
-                transform: `transform: ${direction}${offset})${` translateY(${headerHiding}px)`}; ${getTransitionValue(
-                    options,
-                    transitionSpeed
-                )}`,
+                position:
+                    `${direction}: -${offset}; ` +
+                    `${isMenuOffsetHeader} ` +
+                    `${getTransitionValue(options, transitionSpeed)}`,
+                transform:
+                    `transform: ${direction}${offset}) ` +
+                    `${` translateY(${headerHiding}px)`}; ` +
+                    `${getTransitionValue(options, transitionSpeed)}`,
             };
         };
 
@@ -339,20 +439,34 @@ export class DynamicHeader {
                 this.menuBodyElem.classList.remove(this.menuOpenClass);
 
             const update = () => {
+                // const transformStyle = this.headerElem.style.transform;
+                // const translateX = transformStyle.replace(/[^\d.]/g, "");
+                // const translateX_Val = +translateX;
+
+                const topValue = !isNaN(parseInt(this.headerElem.style.top))
+                    ? Math.abs(parseInt(this.headerElem.style.top))
+                    : 0;
+
+                elemYOffset =
+                    this.#isModuleInitiated(headerHiding, "headerHiding") &&
+                    !this.shouldMenuOffsetHeader
+                        ? Math.abs(translateYValue())
+                        : !this.#isModuleInitiated(
+                              headerHiding,
+                              "headerHiding"
+                          ) && !this.shouldMenuOffsetHeader
+                        ? "0"
+                        : this.headerElem.offsetHeight - 5;
+
                 const direction = menuDirectionCheck({
                     direction: this.menuDirection,
                     appearanceMethod: this.appearanceMethod,
                 });
-                // const menuDirectionOffset = ["left", "right"].includes(
-                //     this.menuDirection
-                // )
-                //     ? "100%"
-                //     : `100% + ${this.headerElem.offsetHeight}px`;
 
                 const isMenuOffsetHeader =
                     this.menuDirection !== "top" && this.shouldMenuOffsetHeader
                         ? `top: ${
-                              this.elemY + this.headerElem.offsetHeight - 5
+                              this.headerElem.offsetHeight - topValue - 5
                           }px;`
                         : " ";
 
@@ -376,9 +490,7 @@ export class DynamicHeader {
                         this.appearanceMethod === "transform" &&
                         !this.shouldMenuOffsetHeader) ||
                     (!isScrollEventAttached &&
-                        this.modules &&
-                        this.modules.includes(headerHiding) &&
-                        this.headerHiding &&
+                        this.#isModuleInitiated(headerHiding, "headerHiding") &&
                         this.appearanceMethod === "position" &&
                         this.shouldMenuOffsetHeader)
                 ) {
@@ -691,24 +803,22 @@ export class DynamicHeader {
         this.menuBodyElem.style.removeProperty("top");
         this.menuBodyElem.style.removeProperty("transition");
 
-        this.modules &&
-            this.modules.includes(headerHiding) &&
+        this.#isModuleInitiated(headerHiding, "headerHiding") &&
             headerHiding.destroy(this.headerElem);
 
-        this.modules &&
-            this.modules.includes(scrollWatch) &&
+        this.#isModuleInitiated(scrollWatch, "scrollWatch") &&
             scrollWatch.destroy(this.menuItem);
 
-        this.modules &&
-            this.modules.includes(headerScroll) &&
-            headerScroll.destroy();
-        this.headerElem.classList.remove(this.headerScroll.headerScrollClass);
+        this.#isModuleInitiated(headerScroll, "headerScroll") &&
+            headerScroll.destroy() &&
+            this.headerElem.classList.remove(
+                this.headerScroll.headerScrollClass
+            );
 
-        this.modules &&
-            this.modules.includes(headerScrollOffset) &&
+        this.#isModuleInitiated(headerScrollOffset, "headerScrollOffset") &&
             headerScrollOffset.destroy();
 
-        this.modules && this.modules.includes(pageLock) && pageLock.destroy();
+        this.#isModuleInitiated(pageLock, "pageLock") && pageLock.destroy();
 
         document.documentElement.classList.remove(this.pageLock.pageLockClass);
         document.body.style.removeProperty("padding-right");
@@ -789,7 +899,6 @@ export const headerHiding = {
     headerHideHandler: null,
     init: (options) => {
         let {
-            header,
             headerElem,
             menuBodyElem,
             menu,
@@ -800,11 +909,6 @@ export const headerHiding = {
             transitionOptions,
             menuDirection,
         } = options;
-
-        const headerWithoutDot = header.replace(/^\./, "");
-        headerElem.classList.add(`${headerWithoutDot}--dynamic`);
-        const dynamicHeader = document.querySelector(`${header}--dynamic`);
-        dynamicHeader.style.position = "fixed";
 
         let elemY = 0;
         let scroll = 0;
@@ -823,7 +927,6 @@ export const headerHiding = {
                           `${getTransitionValue(transitionOptions, openSpeed)}`
                         : `transform: translateY(${Math.abs(elemY)}px); ` +
                           `${getTransitionValue(transitionOptions, openSpeed)}`,
-
                     position: shouldMenuOffsetHeader
                         ? `${menuDirectionCheck({
                               direction: menuDirection,
@@ -838,11 +941,11 @@ export const headerHiding = {
                           `top: 0; ` +
                           `${getTransitionValue(transitionOptions, openSpeed)}`,
                 };
+
                 options.updateStateOpen(
                     menuOpenWithHeaderHiding[appearanceMethod] ||
                         console.error("Wrong value in appearanceMethod")
                 );
-                options.updateElemY(elemY);
             }
 
             if (menu && menuBodyElem.classList.contains(menuOpenClass)) {
@@ -881,6 +984,8 @@ export const headerHiding = {
                     : appearanceMethod === "position"
                     ? `top: ${elemY}px`
                     : "";
+
+            headerElem.style.position = "fixed";
 
             scroll = pos;
         };

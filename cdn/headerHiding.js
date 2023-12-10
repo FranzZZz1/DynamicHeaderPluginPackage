@@ -2,7 +2,6 @@ const headerHiding = {
     headerHideHandler: null,
     init: (options) => {
         let {
-            header,
             headerElem,
             menuBodyElem,
             menu,
@@ -13,11 +12,6 @@ const headerHiding = {
             transitionOptions,
             menuDirection,
         } = options;
-
-        const headerWithoutDot = header.replace(/^\./, "");
-        headerElem.classList.add(`${headerWithoutDot}--dynamic`);
-        const dynamicHeader = document.querySelector(`${header}--dynamic`);
-        dynamicHeader.style.position = "fixed";
 
         let elemY = 0;
         let scroll = 0;
@@ -36,7 +30,6 @@ const headerHiding = {
                           `${getTransitionValue(transitionOptions, openSpeed)}`
                         : `transform: translateY(${Math.abs(elemY)}px); ` +
                           `${getTransitionValue(transitionOptions, openSpeed)}`,
-
                     position: shouldMenuOffsetHeader
                         ? `${menuDirectionCheck({
                               direction: menuDirection,
@@ -51,11 +44,11 @@ const headerHiding = {
                           `top: 0; ` +
                           `${getTransitionValue(transitionOptions, openSpeed)}`,
                 };
+
                 options.updateStateOpen(
                     menuOpenWithHeaderHiding[appearanceMethod] ||
                         console.error("Wrong value in appearanceMethod")
                 );
-                options.updateElemY(elemY);
             }
 
             if (menu && menuBodyElem.classList.contains(menuOpenClass)) {
@@ -94,6 +87,8 @@ const headerHiding = {
                     : appearanceMethod === "position"
                     ? `top: ${elemY}px`
                     : "";
+
+            headerElem.style.position = "fixed";
 
             scroll = pos;
         };
