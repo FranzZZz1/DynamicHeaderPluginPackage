@@ -30,7 +30,6 @@ const pageLock = {
         });
     },
     destroy: () => {
-        // Отключаем отслеживание при уничтожении
         if (pageLock.mutationObserver) {
             pageLock.mutationObserver.disconnect();
         }

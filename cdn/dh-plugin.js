@@ -249,6 +249,7 @@ class DynamicHeader {
                                 timingFunction: this.timingFunction,
                             },
                             menuDirection: this.menuDirection,
+                            mql: this.mql,
                         });
                 } else if (module == scrollWatch) {
                     this.scrollWatch &&
@@ -378,11 +379,23 @@ class DynamicHeader {
 
             return match ? parseFloat(match[1]) : 0;
         };
+        let updatedTranslateY = 0;
+        // Создание экземпляра MutationObserver
+        const observer = new MutationObserver((mutationsList) => {
+            for (const mutation of mutationsList) {
+                if (mutation.attributeName === "style") {
+                    // Обновление значения translateY при изменении стилей headerElem
+                    updatedTranslateY = translateYValue();
+                }
+            }
+        });
+
+        observer.observe(this.headerElem, { attributes: true });
 
         let elemYOffset =
             this.#isModuleInitiated(headerHiding, "headerHiding") &&
             !this.shouldMenuOffsetHeader
-                ? Math.abs(translateYValue())
+                ? Math.abs(updatedTranslateY)
                 : !this.#isModuleInitiated(headerHiding, "headerHiding") &&
                   !this.shouldMenuOffsetHeader
                 ? "0"
@@ -439,18 +452,14 @@ class DynamicHeader {
                 this.menuBodyElem.classList.remove(this.menuOpenClass);
 
             const update = () => {
-                // const transformStyle = this.headerElem.style.transform;
-                // const translateX = transformStyle.replace(/[^\d.]/g, "");
-                // const translateX_Val = +translateX;
-
                 const topValue = !isNaN(parseInt(this.headerElem.style.top))
                     ? Math.abs(parseInt(this.headerElem.style.top))
                     : 0;
-
+                console.log(updatedTranslateY);
                 elemYOffset =
                     this.#isModuleInitiated(headerHiding, "headerHiding") &&
                     !this.shouldMenuOffsetHeader
-                        ? Math.abs(translateYValue())
+                        ? Math.abs(updatedTranslateY)
                         : !this.#isModuleInitiated(
                               headerHiding,
                               "headerHiding"
@@ -484,7 +493,12 @@ class DynamicHeader {
                         menuCloseStyles[this.appearanceMethod] ||
                         console.error("Wrong value in appearanceMethod"));
             };
+
             if (this.menu) {
+                const handleScroll = () => {
+                    requestAnimationFrame(update);
+                };
+
                 if (
                     (!isScrollEventAttached &&
                         this.appearanceMethod === "transform" &&
@@ -494,16 +508,16 @@ class DynamicHeader {
                         this.appearanceMethod === "position" &&
                         this.shouldMenuOffsetHeader)
                 ) {
-                    this.updateHandler = update;
+                    this.updateHandler = handleScroll;
 
-                    attachEvent(window, "scroll", update);
+                    attachEvent(window, "scroll", handleScroll);
                     isScrollEventAttached = true;
                 }
                 update();
             }
 
             if (this.menu && this.menuDirection === "top") {
-                window.removeEventListener("scroll", update);
+                window.removeEventListener("scroll", this.updateHandler);
             }
         };
 
@@ -735,7 +749,26 @@ class DynamicHeader {
                             this.headerScroll.headerScrollClass
                         );
                     }
+
+                    if (
+                        !isScrollEventAttached &&
+                        !this.menuBodyElem.classList.contains(
+                            this.menuOpenClass
+                        )
+                    ) {
+                        attachEvent(window, "scroll", this.updateHandler);
+                        isScrollEventAttached = true;
+                    }
                 } else {
+                    if (isScrollEventAttached) {
+                        window.removeEventListener(
+                            "scroll",
+                            this.updateHandler
+                        );
+                        isScrollEventAttached = false;
+                        this.menuBodyElem.style.removeProperty("top");
+                    }
+
                     if (
                         this.headerScroll &&
                         !this.headerScroll.headerScrollMobile &&

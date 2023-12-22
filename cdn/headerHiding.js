@@ -1,5 +1,6 @@
 const headerHiding = {
     headerHideHandler: null,
+    mediaQueryCheck: null,
     init: (options) => {
         let {
             headerElem,
@@ -11,11 +12,11 @@ const headerHiding = {
             openSpeed,
             transitionOptions,
             menuDirection,
+            mql,
         } = options;
 
         let elemY = 0;
         let scroll = 0;
-
         headerHiding.headerHideHandler = () => {
             const pos = window.pageYOffset;
             const headerHeight = options.headerElem.offsetHeight;
@@ -23,7 +24,7 @@ const headerHiding = {
 
             elemY = Math.min(0, Math.max(-headerHeight, elemY + diff));
 
-            if (menu) {
+            if (menu && mql.matches) {
                 const menuOpenWithHeaderHiding = {
                     transform: shouldMenuOffsetHeader
                         ? `transform: translateY(${headerHeight - 5}px); ` +
@@ -51,7 +52,11 @@ const headerHiding = {
                 );
             }
 
-            if (menu && menuBodyElem.classList.contains(menuOpenClass)) {
+            if (
+                menu &&
+                menuBodyElem.classList.contains(menuOpenClass) &&
+                mql.matches
+            ) {
                 const styles = {
                     transform: shouldMenuOffsetHeader
                         ? `transform: translateY(${
@@ -90,15 +95,37 @@ const headerHiding = {
 
             headerElem.style.position = "fixed";
 
+            if (mql.matches) menuBodyElem.style.position = "fixed";
+
             scroll = pos;
         };
+
         headerHiding.headerHideHandler();
         attachEvent(window, "scroll", headerHiding.headerHideHandler);
+
+        headerHiding.mediaQueryCheck = () => {
+            headerHiding.headerHideHandler();
+            if (!mql.matches) {
+                menuBodyElem.style.removeProperty("position");
+                menuBodyElem.style.removeProperty(
+                    appearanceMethod === "transform"
+                        ? "transform"
+                        : menuDirection
+                );
+                menuBodyElem.style.removeProperty("top");
+            }
+        };
+        attachEvent(mql, "change", headerHiding.mediaQueryCheck);
     },
     destroy: (headerElem) => {
+        menuBodyElem.style.removeProperty("position");
+        menuBodyElem.style.removeProperty(
+            appearanceMethod === "transform" ? "transform" : menuDirection
+        );
         headerElem.style.removeProperty("position");
         headerElem.style.removeProperty("top");
         headerElem.style.removeProperty("transform");
         window.removeEventListener("scroll", headerHiding.headerHideHandler);
+        window.removeEventListener("change", headerHiding.mediaQueryCheck);
     },
 };
